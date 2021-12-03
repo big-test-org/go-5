@@ -2,6 +2,7 @@ package ledgerbackend
 
 import (
 	"bufio"
+	"encoding/hex"
 	"io"
 	"time"
 
@@ -67,16 +68,43 @@ type bufferedLedgerMetaReader struct {
 	r       *bufio.Reader
 	c       chan metaResult
 	decoder *xdr3.Decoder
+	buffer  *windowBuffer
+}
+
+type windowBuffer struct {
+	b      []byte
+	length int
+}
+
+func (w *windowBuffer) Write(p []byte) (n int, err error) {
+	lenP := len(p)
+	capacity := len(w.b)
+	if lenP >= capacity {
+		n = copy(w.b, p[lenP-capacity:])
+		w.length = capacity
+		return n, nil
+	}
+
+	w.length = (w.length + lenP) % capacity
+	copy(w.b, w.b[capacity-lenP:])
+	n = copy(w.b[capacity-lenP:], p)
+	return n, nil
+}
+
+func (w *windowBuffer) Bytes() []byte {
+	return w.b[:w.length]
 }
 
 // newBufferedLedgerMetaReader creates a new meta reader that will shutdown
 // when stellar-core terminates.
 func newBufferedLedgerMetaReader(reader io.Reader) *bufferedLedgerMetaReader {
-	r := bufio.NewReaderSize(reader, metaPipeBufferSize)
+	buffer := &windowBuffer{b: make([]byte, 1024, 1024)}
+	r := bufio.NewReaderSize(io.TeeReader(reader, buffer), metaPipeBufferSize)
 	return &bufferedLedgerMetaReader{
 		c:       make(chan metaResult, ledgerReadAheadBufferSize),
 		r:       r,
 		decoder: xdr3.NewDecoder(r),
+		buffer:  buffer,
 	}
 }
 
@@ -88,6 +116,7 @@ func newBufferedLedgerMetaReader(reader io.Reader) *bufferedLedgerMetaReader {
 func (b *bufferedLedgerMetaReader) readLedgerMetaFromPipe() (*xdr.LedgerCloseMeta, error) {
 	frameLength, err := xdr.ReadFrameLength(b.decoder)
 	if err != nil {
+		log.Debug("Last read bytes:\n", hex.Dump(b.buffer.Bytes()))
 		return nil, errors.Wrap(err, "error reading frame length")
 	}
 
