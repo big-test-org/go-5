@@ -77,28 +77,21 @@ type windowBuffer struct {
 }
 
 func (w *windowBuffer) Write(p []byte) (n int, err error) {
-	lenP := len(p)
-	capacity := len(w.b)
-	if lenP >= capacity {
-		n = copy(w.b, p[lenP-capacity:])
-		w.length = capacity
-		return n, nil
+	w.b = append(w.b, p...)
+	if len(w.b) > w.length {
+		w.b = w.b[len(w.b)-w.length:]
 	}
-
-	w.length = (w.length + lenP) % capacity
-	copy(w.b, w.b[capacity-lenP:])
-	n = copy(w.b[capacity-lenP:], p)
-	return n, nil
+	return len(p), nil
 }
 
 func (w *windowBuffer) Bytes() []byte {
-	return w.b[:w.length]
+	return w.b
 }
 
 // newBufferedLedgerMetaReader creates a new meta reader that will shutdown
 // when stellar-core terminates.
 func newBufferedLedgerMetaReader(reader io.Reader) *bufferedLedgerMetaReader {
-	buffer := &windowBuffer{b: make([]byte, 1024, 1024)}
+	buffer := &windowBuffer{length: 1024}
 	r := bufio.NewReaderSize(io.TeeReader(reader, buffer), metaPipeBufferSize)
 	return &bufferedLedgerMetaReader{
 		c:       make(chan metaResult, ledgerReadAheadBufferSize),
@@ -116,7 +109,7 @@ func newBufferedLedgerMetaReader(reader io.Reader) *bufferedLedgerMetaReader {
 func (b *bufferedLedgerMetaReader) readLedgerMetaFromPipe() (*xdr.LedgerCloseMeta, error) {
 	frameLength, err := xdr.ReadFrameLength(b.decoder)
 	if err != nil {
-		log.Debug("Last read bytes:\n", hex.Dump(b.buffer.Bytes()))
+		log.Error("Last read bytes:\n", hex.Dump(b.buffer.Bytes()))
 		return nil, errors.Wrap(err, "error reading frame length")
 	}
 
