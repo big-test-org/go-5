@@ -30,6 +30,7 @@ func createInsertTrades(
 		CounterAmount:      896,
 		PriceN:             1,
 		PriceD:             3,
+		Type:               OrderbookTradeType,
 	}
 
 	second := first
@@ -51,6 +52,7 @@ func createInsertTrades(
 		CounterAmount:      6,
 		PriceN:             1156,
 		PriceD:             3,
+		Type:               OrderbookTradeType,
 	}
 
 	fourth := InsertTrade{
@@ -67,6 +69,7 @@ func createInsertTrades(
 		BaseIsSeller:        true,
 		PriceN:              675,
 		PriceD:              981,
+		Type:                LiquidityPoolTradeType,
 	}
 
 	fifth := InsertTrade{
@@ -83,6 +86,7 @@ func createInsertTrades(
 		BaseIsSeller:        true,
 		PriceN:              43,
 		PriceD:              56,
+		Type:                LiquidityPoolTradeType,
 	}
 
 	return []InsertTrade{
