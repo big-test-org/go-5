@@ -308,6 +308,7 @@ var selectTradeFields = sq.Select(
 	"htrd.base_is_seller",
 	"htrd.price_n",
 	"htrd.price_d",
+	"htrd.trade_type",
 )
 
 var selectReverseTradeFields = sq.Select(
@@ -332,6 +333,7 @@ var selectReverseTradeFields = sq.Select(
 	"NOT(htrd.base_is_seller) as base_is_seller",
 	"htrd.price_d as price_n",
 	"htrd.price_n as price_d",
+	"htrd.trade_type",
 )
 
 func getCanonicalAssetOrder(

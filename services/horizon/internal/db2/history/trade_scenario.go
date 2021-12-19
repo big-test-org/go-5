@@ -297,6 +297,7 @@ func TradeScenario(tt *test.T, q *Q) TradeFixtures {
 			BaseIsSeller:       true,
 			PriceN:             null.IntFrom(inserts[0].PriceN),
 			PriceD:             null.IntFrom(inserts[0].PriceD),
+			Type:               OrderbookTradeType,
 		},
 		{
 			HistoryOperationID: inserts[1].HistoryOperationID,
@@ -317,6 +318,7 @@ func TradeScenario(tt *test.T, q *Q) TradeFixtures {
 			BaseIsSeller:       true,
 			PriceN:             null.IntFrom(inserts[1].PriceN),
 			PriceD:             null.IntFrom(inserts[1].PriceD),
+			Type:               OrderbookTradeType,
 		},
 		{
 			HistoryOperationID: inserts[2].HistoryOperationID,
@@ -337,6 +339,7 @@ func TradeScenario(tt *test.T, q *Q) TradeFixtures {
 			BaseIsSeller:       false,
 			PriceN:             null.IntFrom(inserts[2].PriceN),
 			PriceD:             null.IntFrom(inserts[2].PriceD),
+			Type:               OrderbookTradeType,
 		},
 		{
 			HistoryOperationID:  inserts[3].HistoryOperationID,
@@ -358,6 +361,7 @@ func TradeScenario(tt *test.T, q *Q) TradeFixtures {
 			LiquidityPoolFee:    inserts[3].LiquidityPoolFee,
 			PriceN:              null.IntFrom(inserts[3].PriceN),
 			PriceD:              null.IntFrom(inserts[3].PriceD),
+			Type:                LiquidityPoolTradeType,
 		},
 		{
 			HistoryOperationID:  inserts[4].HistoryOperationID,
@@ -379,6 +383,7 @@ func TradeScenario(tt *test.T, q *Q) TradeFixtures {
 			LiquidityPoolFee:    inserts[4].LiquidityPoolFee,
 			PriceN:              null.IntFrom(inserts[4].PriceN),
 			PriceD:              null.IntFrom(inserts[4].PriceD),
+			Type:                LiquidityPoolTradeType,
 		},
 	}
 
